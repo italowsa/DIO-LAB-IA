@@ -1,30 +1,14 @@
-# DIO-LAB-IA
-# Repositório reservado para execução de praticas de laborátório de curso na plataforma DIO.
-# Este projeto foi desenhado rodar no ambiente de teste do Google Colab.
+#DIO-LAB-IA
+#Repositório reservado para execução de praticas de laborátório de curso na plataforma DIO.
 
-## Google Colab — Notebook pronto (células)
+#Este projeto foi desenhado rodar no ambiente de teste do Google Colab.
 
-### **Célula 1 — Instalar dependências**
+#Google Colab — Notebook pronto (células)
 
-```python
+#Célula 1 — Instalar dependências
 !pip -q install requests
-```
 
-***
-
-### **Célula 2 — Configurar credenciais (do jeito certo no Colab)**
-
-No Colab, o melhor é usar o **Secrets** (ícone 🔑 na barra lateral).  
-Crie 2 segredos com estes nomes:
-
-*   `AZURE_TRANSLATOR_KEY`
-*   `AZURE_TRANSLATOR_REGION`
-
-E opcional:
-
-*   `AZURE_TRANSLATOR_ENDPOINT` (se não criar, usaremos o padrão)
-
-```python
+#Célula 2 — Configurar credenciais
 import os
 
 # Jeito recomendado: usar Colab Secrets
@@ -49,15 +33,8 @@ if not AZURE_TRANSLATOR_KEY or not AZURE_TRANSLATOR_REGION:
 print("Credenciais carregadas com sucesso!")
 print("Endpoint:", AZURE_TRANSLATOR_ENDPOINT)
 print("Region:", AZURE_TRANSLATOR_REGION)
-```
 
-Observação importante: a doc do quickstart REST explica os headers e quando a **região** é exigida (ex.: recursos regionais / multi-service). Eu já deixo a região no header para funcionar na maioria dos casos. [\[youtube.com\]](https://www.youtube.com/watch?v=Is3GgsCEPho)
-
-***
-
-### **Célula 3 — Função de tradução (PT → EN, etc.)**
-
-```python
+#Célula 3 — Função de tradução (PT → EN, etc.)
 import requests
 
 def traduzir(texto, para="en", de=None, endpoint=AZURE_TRANSLATOR_ENDPOINT, key=AZURE_TRANSLATOR_KEY, region=AZURE_TRANSLATOR_REGION):
@@ -94,24 +71,12 @@ def traduzir(texto, para="en", de=None, endpoint=AZURE_TRANSLATOR_ENDPOINT, key=
         "detectado": detected.get("language"),
         "confianca": detected.get("score")
     }
-```
 
-
-
-***
-
-### **Célula 4 — Teste rápido**
-
-```python
+#Célula 4 — Teste
 resultado = traduzir("Olá! Como você está?", para="en")
 resultado
-```
 
-***
-
-### **Célula 5 — Interface simples (input → output)**
-
-```python
+#Célula 5 — Interface simples (input → output)
 texto = input("Digite o texto: ")
 para = input("Traduzir para (ex: en, es, fr): ").strip() or "en"
 de = input("Idioma de origem (opcional, ex: pt). Enter para detectar: ").strip() or None
@@ -123,6 +88,3 @@ print("Traduzido :", res["traduzido"])
 print("Para      :", res["para"])
 if res["detectado"]:
     print("Detectado :", res["detectado"], "| confiança:", res["confianca"])
-```
-
-***
