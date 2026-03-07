@@ -1,2 +1,130 @@
 # DIO-LAB-IA
 Repositório reservado para execução de praticas de laborátório de curso na plataforma DIO.
+
+Este projeto foi desenhado rodar no ambiente de teste do Google Colab.
+
+## Google Colab — Notebook pronto (células)
+
+### **Célula 1 — Instalar dependências**
+
+```python
+!pip -q install requests
+```
+
+***
+
+### **Célula 2 — Configurar credenciais (do jeito certo no Colab)**
+
+No Colab, o melhor é usar o **Secrets** (ícone 🔑 na barra lateral).  
+Crie 2 segredos com estes nomes:
+
+*   `AZURE_TRANSLATOR_KEY`
+*   `AZURE_TRANSLATOR_REGION`
+
+E opcional:
+
+*   `AZURE_TRANSLATOR_ENDPOINT` (se não criar, usaremos o padrão)
+
+```python
+import os
+
+# Jeito recomendado: usar Colab Secrets
+# Vá no ícone 🔑 (Secrets) e crie:
+# AZURE_TRANSLATOR_KEY = "..."
+# AZURE_TRANSLATOR_REGION = "..."
+
+try:
+    from google.colab import userdata
+    AZURE_TRANSLATOR_KEY = userdata.get("AZURE_TRANSLATOR_KEY")
+    AZURE_TRANSLATOR_REGION = userdata.get("AZURE_TRANSLATOR_REGION")
+    AZURE_TRANSLATOR_ENDPOINT = userdata.get("AZURE_TRANSLATOR_ENDPOINT") or "https://api.cognitive.microsofttranslator.com"
+except Exception:
+    # fallback caso não esteja no Colab
+    AZURE_TRANSLATOR_KEY = os.getenv("AZURE_TRANSLATOR_KEY")
+    AZURE_TRANSLATOR_REGION = os.getenv("AZURE_TRANSLATOR_REGION")
+    AZURE_TRANSLATOR_ENDPOINT = os.getenv("AZURE_TRANSLATOR_ENDPOINT", "https://api.cognitive.microsofttranslator.com")
+
+if not AZURE_TRANSLATOR_KEY or not AZURE_TRANSLATOR_REGION:
+    raise ValueError("Defina AZURE_TRANSLATOR_KEY e AZURE_TRANSLATOR_REGION nos Colab Secrets (🔑) ou em variáveis de ambiente.")
+
+print("Credenciais carregadas com sucesso!")
+print("Endpoint:", AZURE_TRANSLATOR_ENDPOINT)
+print("Region:", AZURE_TRANSLATOR_REGION)
+```
+
+Observação importante: a doc do quickstart REST explica os headers e quando a **região** é exigida (ex.: recursos regionais / multi-service). Eu já deixo a região no header para funcionar na maioria dos casos. [\[youtube.com\]](https://www.youtube.com/watch?v=Is3GgsCEPho)
+
+***
+
+### **Célula 3 — Função de tradução (PT → EN, etc.)**
+
+```python
+import requests
+
+def traduzir(texto, para="en", de=None, endpoint=AZURE_TRANSLATOR_ENDPOINT, key=AZURE_TRANSLATOR_KEY, region=AZURE_TRANSLATOR_REGION):
+    """
+    Traduz um texto usando Azure AI Translator (REST).
+    - de=None: deixa a API detectar automaticamente (quando suportado)
+    - para: idioma alvo, ex: 'en', 'es', 'fr'
+    """
+    url = f"{endpoint}/translate"
+    params = {"api-version": "3.0", "to": para}
+    if de:
+        params["from"] = de
+
+    headers = {
+        "Ocp-Apim-Subscription-Key": key,
+        "Ocp-Apim-Subscription-Region": region,
+        "Content-Type": "application/json"
+    }
+
+    body = [{"text": texto}]
+
+    r = requests.post(url, params=params, headers=headers, json=body, timeout=20)
+    r.raise_for_status()
+    data = r.json()
+
+    item = data[0]
+    traducao = item["translations"][0]
+    detected = item.get("detectedLanguage", {})
+
+    return {
+        "original": texto,
+        "traduzido": traducao["text"],
+        "para": traducao["to"],
+        "detectado": detected.get("language"),
+        "confianca": detected.get("score")
+    }
+```
+
+
+
+***
+
+### **Célula 4 — Teste rápido**
+
+```python
+resultado = traduzir("Olá! Como você está?", para="en")
+resultado
+```
+
+***
+
+### **Célula 5 — Interface simples (input → output)**
+
+```python
+texto = input("Digite o texto: ")
+para = input("Traduzir para (ex: en, es, fr): ").strip() or "en"
+de = input("Idioma de origem (opcional, ex: pt). Enter para detectar: ").strip() or None
+
+res = traduzir(texto, para=para, de=de)
+print("\n Resultado")
+print("Original  :", res["original"])
+print("Traduzido :", res["traduzido"])
+print("Para      :", res["para"])
+if res["detectado"]:
+    print("Detectado :", res["detectado"], "| confiança:", res["confianca"])
+```
+
+***
+
