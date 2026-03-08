@@ -1,0 +1,115 @@
+#Lab-Desafio-Analise-Documentos
+#Sistema de Análise Inteligente de Documentos
+
+#Objetivo
+
+#Criar uma solução que:
+#Recebe documentos (PDF ou imagem)
+#Extrai informações automaticamente
+#Analisa inconsistências
+#Identifica possíveis fraudes
+#Usando IA do Azure.
+
+#Tecnologias do Projeto
+#Python
+#IA	Azure AI Document Intelligence
+#API	Azure AI Services
+#Armazenamento	Azure Blob Storage
+
+# Fluxo da aplicação:
+#Usuário envia documento
+#        ↓
+#Upload para Azure Blob Storage
+#        ↓
+#Azure AI Document Intelligence analisa documento
+#        ↓
+#Extração automática de dados
+#        ↓
+#Sistema valida inconsistências
+#        ↓
+#Resultado: Documento válido ou suspeito
+
+#PASSO 1 — Criar conta no Azure
+
+#Acesse: https://portal.azure.com
+#Crie os serviços:
+
+#Azure AI Services
+#Azure AI Document Intelligence
+
+#PASSO 2 — Criar recurso de IA
+
+#Create Resource
+#     ↓
+#AI + Machine Learning
+#     ↓
+#Document Intelligence
+
+#Você receberá: 
+#Endpoint 
+#API Key
+
+#PASSO 3 — Instalar SDK Python
+
+#Instalar biblioteca:
+
+pip install azure-ai-formrecognizer
+
+#PASSO 4 — Código para analisar documentos
+
+from azure.ai.formrecognizer import DocumentAnalysisClient
+from azure.core.credentials import AzureKeyCredential
+
+endpoint = "SEU_ENDPOINT"
+key = "SUA_CHAVE"
+
+client = DocumentAnalysisClient(endpoint, AzureKeyCredential(key))
+
+with open("documento.pdf", "rb") as f:
+    poller = client.begin_analyze_document("prebuilt-document", document=f)
+
+result = poller.result()
+
+for page in result.pages:
+    for line in page.lines:
+        print(line.content)
+
+Esse código usa Azure AI Document Intelligence para extrair texto e dados do documento.
+
+⚙️ PASSO 5 — Detectar fraude
+
+Exemplo simples de regra:
+
+if valor_documento > limite_aprovado:
+    status = "Suspeito"
+
+if cpf != cpf_cadastrado:
+    status = "Possível fraude"
+
+#PASSO 6 — Criar upload de documento
+
+<form action="/upload" method="post" enctype="multipart/form-data">
+  <input type="file" name="document">
+  <button type="submit">Enviar</button>
+</form>
+
+#PASSO 7 — Salvar resultado no banco
+
+#Usar Azure SQL Database
+
+CREATE TABLE documentos (
+    id INT IDENTITY PRIMARY KEY,
+    nome_arquivo VARCHAR(200),
+    data_upload DATETIME,
+    status VARCHAR(50),
+    resultado_analise TEXT
+);
+
+#Resultado Final
+
+# O sistema consegue:
+# Ler documentos automaticamente
+# Extrair dados
+# Identificar inconsistências
+# Detectar possível fraude
+# Armazenar resultados
